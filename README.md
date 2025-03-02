@@ -50,7 +50,7 @@ Will only generate comments for key that are pointing to values, lists or empty 
 For empty objects {} deriving type is not working, recommend to add manually
 
 ## To do
-- Derive 
+- Derive
 - | multi-line strings does not work
 - add sections? could add now but then would need section comment for all top level objects otherwise formatting would be wierd
 - if sections added, add possiblity to add section descr?
