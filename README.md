@@ -54,6 +54,10 @@ For empty objects {} deriving type is not working, recommend to add manually
 - | multi-line strings does not work
 - add sections? could add now but then would need section comment for all top level objects otherwise formatting would be wierd
 - if sections added, add possiblity to add section descr?
-- add run flag to generate from git root or from current dir or from provided path
-- path to file gen
-
+- add @header comment type? to generate header description?
+- add run flags
+  - -f [ pathToFile ] to run on a single file absolute path
+  - --from-wd to run program from working dir
+  - --git to find git root dir and find all helm charts
+  - -t [ md | html | rtf ] output formatting
+  - -o [ pathToDir ] output directory
