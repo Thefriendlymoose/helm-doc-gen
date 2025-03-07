@@ -13,8 +13,20 @@ func GetMarkdownBuilder() *MarkdownBuilder {
 	return &MarkdownBuilder{sb: strings.Builder{}}
 }
 
-func (md *MarkdownBuilder) GenerateSection(section string) {
-	md.sb.WriteString(fmt.Sprintf("# %s\n", section))
+func (md *MarkdownBuilder) GenerateDocumentTitle(title string) {
+	md.sb.WriteString(fmt.Sprintf("# %s\n", title))
+}
+
+func (md *MarkdownBuilder) GenerateDocumentDescription(description string) {
+	md.sb.WriteString(fmt.Sprintf("%s\n", description))
+}
+
+func (md *MarkdownBuilder) GenerateSectionTitle(title string) {
+	md.sb.WriteString(fmt.Sprintf("## %s\n", title))
+}
+
+func (md *MarkdownBuilder) GenerateSectionDescription(description string) {
+	md.sb.WriteString(fmt.Sprintf("%s\n", description))
 }
 
 func (md *MarkdownBuilder) GenerateTableHeader() {

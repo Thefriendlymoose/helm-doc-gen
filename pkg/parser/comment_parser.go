@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"helm-doc-gen/pkg/documenter"
 	"regexp"
 	"strings"
 )
@@ -52,16 +51,6 @@ func GetComment(yi YamlItem, comment string) (*Comment, error) {
 	}
 
 	return &c, nil
-}
-
-func (ct *Comment) GenerateRow(dc documenter.DocumentCreator) {
-	switch ct.CommentType {
-	case PARAM:
-		dc.GenerateTableRow(ct.Path, ct.Typ, ct.DefaultValue, ct.Descr)
-	case SECTION:
-		// TODO
-		dc.GenerateSection("TEMP")
-	}
 }
 
 func IsValidDocComment(comment string) bool {

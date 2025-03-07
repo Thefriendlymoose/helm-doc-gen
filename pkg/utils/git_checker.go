@@ -1,28 +1,51 @@
 package utils
 
-import "os/exec"
+import (
+	"fmt"
+	"os/exec"
+	"strings"
+)
 
-// isGitInstalled checks if Git is installed on the system.
-func IsGitInstalled() bool {
+func GetGitRoot(startDir string) (string, error) {
+	gitInstalled := isGitInstalled()
+
+	if !gitInstalled {
+		return "", fmt.Errorf("git is not installed")
+	}
+
+	isGitRepo := isGitRepo(startDir)
+
+	if !isGitRepo {
+		return "", fmt.Errorf("not running inside git repo")
+	}
+
+	gitRoot, err := findGitRoot(startDir)
+
+	if err != nil {
+		return "", fmt.Errorf("can't find git root")
+	}
+
+	return gitRoot, nil
+}
+
+func isGitInstalled() bool {
 	_, err := exec.LookPath("git")
 	return err == nil
 }
 
-// isGitRepo checks if the current directory is a Git repository.
-func IsGitRepo(dir string) bool {
+func isGitRepo(dir string) bool {
 	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
 	cmd.Dir = dir
 	err := cmd.Run()
 	return err == nil
 }
 
-// findGitRoot finds the root directory of the Git repository.
-func FindGitRoot(startDir string) (string, error) {
+func findGitRoot(startDir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	cmd.Dir = startDir
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
-	return string(output), nil
+	return strings.TrimSpace(string(output)), nil
 }
