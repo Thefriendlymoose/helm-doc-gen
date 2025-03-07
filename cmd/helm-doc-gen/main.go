@@ -1,9 +1,9 @@
 package main
 
 import (
-	"helm-doc-gen/pkg/commander"
+	"helm-doc-gen/pkg/cli"
 )
 
 func main() {
-	commander.Run()
+	cli.Run()
 }
