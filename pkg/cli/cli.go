@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+var commands = map[string]string{
+	"build": "Builds documentation",
+	"help":  "Displays this help message",
+}
+
 // Run parses and executes the correct subcommand
 func Run() {
 	if len(os.Args) < 2 {
@@ -17,6 +22,8 @@ func Run() {
 	switch os.Args[1] {
 	case "build":
 		handleBuild(os.Args[2:])
+	case "help":
+		printUsage()
 	default:
 		fmt.Println("Unknown command:", os.Args[1])
 		os.Exit(1)
@@ -50,4 +57,13 @@ func handleBuild(args []string) {
 	}
 
 	builder.RunBuild(buildConfig)
+}
+
+func printUsage() {
+	fmt.Println("Usage: project <command> [options]")
+	fmt.Println("\nAvailable commands:")
+	for cmd, desc := range commands {
+		fmt.Printf("  %-10s %s\n", cmd, desc)
+	}
+	fmt.Println("\nUse 'project <command> -h' for more details.")
 }

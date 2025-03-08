@@ -23,69 +23,47 @@ type BuildConfig struct {
 
 func RunBuild(cmds *BuildConfig) {
 
-	wd, err := utils.GetWorkingDir()
+	var wd string
+	var err error
+
+	if *cmds.Path != "" {
+		if filepath.Base(*cmds.Path) == pathfinder.VALUES_FILE {
+			wd = filepath.Dir(*cmds.Path)
+		} else {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+	} else if *cmds.WorkingDir {
+		wd, err = utils.GetWorkingDir()
+
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+	} else if *cmds.Git {
+		wd, err = utils.GetGitRoot(wd)
+
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+	}
+
+	pts, err := pathfinder.GetPathsToStuff(wd)
 
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	if *cmds.Path != "" {
-		if filepath.Base(*cmds.Path) == pathfinder.VALUES_FILE {
-			pf, err := parser.GetParsedFile(*cmds.Path, yaml.CommentHeadPosition)
-			if err != nil {
-				panic(err)
-			}
-			mdb := documenter.GetMarkdownBuilder()
-			doc := parser.GetDocumentation(pf)
-			documenter.GenerateFile(doc.GenerateDocument(mdb), "dummy", documenter.MarkDown)
-		} else {
-			log.Fatal(err)
-			os.Exit(1)
-		}
-	} else if *cmds.WorkingDir {
-		pts, err := pathfinder.GetPathsToStuff(wd)
-
+	for name, filePaths := range pts.HelmDirectories {
+		valuesPath := filePaths[pathfinder.VALUES_NAME]
+		pf, err := parser.GetParsedFile(valuesPath, yaml.CommentHeadPosition)
 		if err != nil {
-			log.Fatal(err)
-			os.Exit(1)
+			panic(err)
 		}
-
-		for name, filePaths := range pts.HelmDirectories {
-			valuesPath := filePaths[pathfinder.VALUES_NAME]
-			pf, err := parser.GetParsedFile(valuesPath, yaml.CommentHeadPosition)
-			if err != nil {
-				panic(err)
-			}
-			mdb := documenter.GetMarkdownBuilder()
-			doc := parser.GetDocumentation(pf)
-			documenter.GenerateFile(doc.GenerateDocument(mdb), name, documenter.MarkDown)
-		}
-
-	} else if *cmds.Git {
-		gitRoot, err := utils.GetGitRoot(wd)
-
-		if err != nil {
-			log.Fatal(err)
-			os.Exit(1)
-		}
-
-		pts, err := pathfinder.GetPathsToStuff(gitRoot)
-
-		if err != nil {
-			log.Fatal(err)
-			os.Exit(1)
-		}
-
-		for name, filePaths := range pts.HelmDirectories {
-			valuesPath := filePaths[pathfinder.VALUES_NAME]
-			pf, err := parser.GetParsedFile(valuesPath, yaml.CommentHeadPosition)
-			if err != nil {
-				panic(err)
-			}
-			mdb := documenter.GetMarkdownBuilder()
-			doc := parser.GetDocumentation(pf)
-			documenter.GenerateFile(doc.GenerateDocument(mdb), name, documenter.MarkDown)
-		}
+		mdb := documenter.GetMarkdownBuilder()
+		doc := parser.GetDocumentation(pf)
+		documenter.GenerateFile(doc.GenerateDocument(mdb), name, documenter.MarkDown)
 	}
 }
