@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"fmt"
 	"helm-doc-gen/pkg/documenter"
 	"helm-doc-gen/pkg/parser"
 	"helm-doc-gen/pkg/pathfinder"
@@ -56,14 +57,29 @@ func RunBuild(cmds *BuildConfig) {
 		os.Exit(1)
 	}
 
+	docs := make(map[string]*parser.Document)
+
 	for name, filePaths := range pts.HelmDirectories {
 		valuesPath := filePaths[pathfinder.VALUES_NAME]
 		pf, err := parser.GetParsedFile(valuesPath, yaml.CommentHeadPosition)
 		if err != nil {
 			panic(err)
 		}
+		docs[name] = parser.GetDocumentation(pf)
+	}
+
+	for name, doc := range docs {
+		if *cmds.HTML {
+			fmt.Println(fmt.Errorf("html generation not implemented"))
+		}
+
 		mdb := documenter.GetMarkdownBuilder()
-		doc := parser.GetDocumentation(pf)
-		documenter.GenerateFile(doc.GenerateDocument(mdb), name, documenter.MarkDown)
+		if *cmds.MarkDown {
+			if *cmds.OutputDir == "" {
+				documenter.GenerateFile("./helm-docs-output", doc.GenerateDocument(mdb), name, documenter.MarkDown)
+			} else {
+				documenter.GenerateFile(*cmds.OutputDir, doc.GenerateDocument(mdb), name, documenter.MarkDown)
+			}
+		}
 	}
 }

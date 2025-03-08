@@ -3,6 +3,7 @@ package documenter
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type FileExtension int
@@ -21,10 +22,26 @@ func (fe FileExtension) String() string {
 	return FileExtensionName[fe]
 }
 
-func GenerateFile(dataToWrite string, nameOfFile string, extenstion FileExtension) {
-	file, err := os.Create(fmt.Sprintf("%s.%s", nameOfFile, extenstion))
+func GenerateFile(outputDir string, dataToWrite string, nameOfFile string, extenstion FileExtension) {
+
+	absPath, err := filepath.Abs(outputDir)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error resolving absolute path:", err)
+		return
+	}
+
+	err = os.MkdirAll(absPath, os.ModePerm)
+	if err != nil {
+		fmt.Println("Error creating directory:", err)
+		return
+	}
+
+	outputFilePath := filepath.Join(absPath, fmt.Sprintf("%s.%s", nameOfFile, extenstion))
+
+	file, err := os.Create(outputFilePath)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
 	}
 
 	defer file.Close()
